@@ -1,6 +1,6 @@
 # Terminal Manager for VS Code
 
-A lightweight extension that lets you define, launch, and stop **named terminal sessions and terminal groups** directly from the Command Palette. Ideal when your project needs several long‑running processes (e.g. frontend, backend, database, build watcher) but you don't want them wszystkich running all the time.
+A lightweight extension that lets you define, launch, and stop **named terminal sessions and terminal groups** directly from the Command Palette. Ideal when your project needs several long‑running processes (e.g. frontend, backend, database, build watcher) but you don't want them running all the time.
 
 ---
 
