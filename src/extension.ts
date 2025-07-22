@@ -206,6 +206,39 @@ export function activate(context: vscode.ExtensionContext) {
       });
     })
   );
+
+  //info splitowanie konsoli
+
+  //info Uruchom terminale z autoStart=true automatycznie po uruchomieniu vscode
+  terminals.forEach((term) => {
+    if (term.autoStart) {
+      startTerminal(term.name, term.commands);
+    }
+  });
+
+  //info Nasłuchuj na zmiany konfiguracji terminalManager.terminals
+  vscode.workspace.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration("terminalManager.terminals")) {
+      vscode.window.showInformationMessage(
+        "Konfiguracja terminali zmieniła się, przeładowuję terminale..."
+      );
+
+      // Zatrzymaj wszystkie istniejące terminale
+      terminalMap.forEach((term) => term.dispose());
+      terminalMap.clear();
+
+      // Załaduj nową konfigurację
+      const newConfig = vscode.workspace.getConfiguration("terminalManager");
+      const newTerminals = newConfig.get<any[]>("terminals") || [];
+
+      // Uruchom terminale z autoStart = true z nowej konfiguracji
+      newTerminals.forEach((term) => {
+        if (term.autoStart) {
+          startTerminal(term.name, term.commands);
+        }
+      });
+    }
+  });
 }
 
 //info Funkcja wywoływana przy dezaktywacji rozszerzenia – czyści terminale
