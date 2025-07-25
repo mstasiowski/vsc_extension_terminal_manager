@@ -447,8 +447,8 @@ terminal-manager/
 
 ### 1.1.0
 
-- 🖱️ Added `scriptModules` support for running npm scripts from multiple projects
-- 🖱️ Added `stopScriptInModule` command to stop running script terminals
+- 🔧 Added `scriptModules` support for running npm scripts from multiple projects
+- 🔧 Added `stopScriptInModule` command to stop running script terminals
 - 🔧 Added support for external command files via `location` property
 - 🔧 Implemented automatic configuration reload
 - 🔧 Improved error handling for file operations
