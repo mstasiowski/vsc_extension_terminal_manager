@@ -107,7 +107,7 @@ Add terminals, groups, and script modules in your _workspace_ or _user_ `setting
     },
     {
       "name": "Administration - Run All Tests",
-      "location": "project1/administration",
+      "location": "project/administration",
       "runScripts": ["test", "test:ping", "test:unit", "test:integration"]
     }
   ]
