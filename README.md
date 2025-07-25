@@ -310,6 +310,10 @@ Where `./scripts/microservices.json` contains:
       "command": "--env development"
     },
     {
+      "name": "Project - Administration",
+      "location": "project/administration"
+    },
+    {
       "name": "Admin Panel",
       "location": "project/administration",
       "runScripts": ["watch", "build", "test"]
