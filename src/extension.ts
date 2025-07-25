@@ -445,8 +445,23 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
+        // Filtruj tylko moduły, które NIE mają zdefiniowanych runScripts
+        const modulesWithoutScripts = scriptModules.filter(
+          (mod) =>
+            !mod.runScripts ||
+            !Array.isArray(mod.runScripts) ||
+            mod.runScripts.length === 0
+        );
+
+        if (modulesWithoutScripts.length === 0) {
+          vscode.window.showWarningMessage(
+            "Brak modułów bez zdefiniowanych 'runScripts'. Wszystkie moduły mają predefiniowane skrypty - użyj 'Run Scripts In Selected Modules'."
+          );
+          return;
+        }
+
         const selectedModule = await vscode.window.showQuickPick(
-          scriptModules.map((mod) => ({
+          modulesWithoutScripts.map((mod) => ({
             label: mod.name,
             description: mod.location,
             mod,
@@ -575,15 +590,9 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        if (selectedModules.length === 1) {
-          vscode.window.showInformationMessage(
-            `Uruchomiono skrypty w module: ${selectedModules[0].label}.`
-          );
-        } else {
-          vscode.window.showInformationMessage(
-            `Uruchomiono skrypty w ${selectedModules.length} modulach.`
-          );
-        }
+        vscode.window.showInformationMessage(
+          `Uruchomiono skrypty w ${selectedModules.length} module(ach).`
+        );
       }
     )
   );
@@ -594,7 +603,7 @@ export function activate(context: vscode.ExtensionContext) {
       "terminalManager.stopScriptInModule",
       async () => {
         const terminals = Array.from(terminalMap.entries())
-          .filter(([name, _]) => name.includes(" - "))
+          .filter(([name, _]) => name.includes(" - ")) // tylko te tworzone przez runScriptInModule
           .map(([name]) => name);
 
         if (terminals.length === 0) {
@@ -692,22 +701,9 @@ export function activate(context: vscode.ExtensionContext) {
           });
         });
 
-        if (stoppedCount === 0) {
-          vscode.window.showInformationMessage(
-            "Nie zatrzymano żadnych terminali."
-          );
-          return;
-        }
-
-        if (stoppedCount === 1) {
-          vscode.window.showInformationMessage(
-            `Zatrzymano ${stoppedCount} terminal ze skryptem.`
-          );
-        } else {
-          vscode.window.showInformationMessage(
-            `Zatrzymanie ${stoppedCount} terminali ze skryptami.`
-          );
-        }
+        vscode.window.showInformationMessage(
+          `Zatrzymano ${stoppedCount} terminali ze skryptami.`
+        );
       }
     )
   );

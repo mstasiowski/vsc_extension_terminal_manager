@@ -113,7 +113,7 @@
               },
               "runScripts": {
                 "type": "array",
-                "description": "Lista skryptów npm do uruchomienia w tym module",
+                "description": "Lista skryptów npm do uruchomienia w tym module (opcjonalne)",
                 "items": {
                   "type": "string"
                 }

@@ -182,12 +182,12 @@ The extension will:
 
 #### Script Module Object Properties
 
-| Property     | Type       | Required | Description                                              |
-| ------------ | ---------- | -------- | -------------------------------------------------------- |
-| `name`       | `string`   | ✅       | Display name for the module                              |
-| `location`   | `string`   | ✅       | Path to folder containing package.json                   |
-| `command`    | `string`   | ❌       | Additional flags to append to npm run commands           |
-| `runScripts` | `string[]` | ❌       | Select predefined scripts to run across multiple modules |
+| Property     | Type       | Required | Description                                                                                                                           |
+| ------------ | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`       | `string`   | ✅       | Display name for the module                                                                                                           |
+| `location`   | `string`   | ✅       | Path to folder containing package.json                                                                                                |
+| `command`    | `string`   | ❌       | Additional flags to append to npm run commands                                                                                        |
+| `runScripts` | `string[]` | ❌       | Select predefined names of scripts to be run. Allows you to run multiple terminals using the Run Scripts In Selected Modules function |
 
 ---
 
