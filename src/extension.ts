@@ -575,9 +575,15 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        vscode.window.showInformationMessage(
-          `Uruchomiono skrypty w ${selectedModules.length} module(ach).`
-        );
+        if (selectedModules.length === 1) {
+          vscode.window.showInformationMessage(
+            `Uruchomiono skrypty w module: ${selectedModules[0].label}.`
+          );
+        } else {
+          vscode.window.showInformationMessage(
+            `Uruchomiono skrypty w ${selectedModules.length} modulach.`
+          );
+        }
       }
     )
   );
