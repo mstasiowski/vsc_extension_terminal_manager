@@ -6,19 +6,21 @@ A lightweight extension that lets you define, launch, and stop **named terminal 
 
 ## ✨ Key Features
 
-| Feature                   | What it does                                                                        |
-| ------------------------- | ----------------------------------------------------------------------------------- |
-| **Start All**             | Launches every terminal that has `"autoStart": true` in your settings               |
-| **Start Selected**        | Multi‑select UI to start any subset of terminals                                    |
-| **Stop Selected**         | Multi‑select UI to stop chosen running terminals                                    |
-| **Start / Stop Group**    | Launch or dispose an entire group of terminals defined in settings                  |
-| **Start / Stop One**      | Quick pick to handle a single terminal                                              |
-| **Run Script in Module**  | Execute npm scripts from different projects/modules with optional flags             |
-| **Stop Script in Module** | Stop running npm script terminals from modules                                      |
-| **Persist Names**         | Each terminal keeps a stable, human‑friendly name so you always know what's running |
-| **Multiple Commands**     | Each terminal can execute multiple commands in sequence                             |
-| **External Config**       | Load commands from external JSON files using the `location` property                |
-| **Auto Reload**           | Automatically reloads terminals when configuration changes                          |
+| Feature                              | What it does                                                                        |
+| ------------------------------------ | ----------------------------------------------------------------------------------- |
+| **Start All**                        | Launches every terminal that has `"autoStart": true` in your settings               |
+| **Start Selected**                   | Multi‑select UI to start any subset of terminals                                    |
+| **Stop Selected**                    | Multi‑select UI to stop chosen running terminals                                    |
+| **Start / Stop Group**               | Launch or dispose an entire group of terminals defined in settings                  |
+| **Start / Stop One**                 | Quick pick to handle a single terminal                                              |
+| **Run Script in Module**             | Execute npm scripts from different projects/modules with optional flags             |
+| **Stop Script in Module**            | Stop running npm script terminals from modules                                      |
+| **Run Scripts In Selected Modules**  | Runs a group of predefined scripts in selected modules                              |
+| **Stop Scripts In Selected Modules** | Stops a group of predefined scripts in selected modules                             |
+| **Persist Names**                    | Each terminal keeps a stable, human‑friendly name so you always know what's running |
+| **Multiple Commands**                | Each terminal can execute multiple commands in sequence                             |
+| **External Config**                  | Load commands from external JSON files using the `location` property                |
+| **Auto Reload**                      | Automatically reloads terminals when configuration changes                          |
 
 ---
 
@@ -180,11 +182,12 @@ The extension will:
 
 #### Script Module Object Properties
 
-| Property   | Type     | Required | Description                                    |
-| ---------- | -------- | -------- | ---------------------------------------------- |
-| `name`     | `string` | ✅       | Display name for the module                    |
-| `location` | `string` | ✅       | Path to folder containing package.json         |
-| `command`  | `string` | ❌       | Additional flags to append to npm run commands |
+| Property     | Type       | Required | Description                                              |
+| ------------ | ---------- | -------- | -------------------------------------------------------- |
+| `name`       | `string`   | ✅       | Display name for the module                              |
+| `location`   | `string`   | ✅       | Path to folder containing package.json                   |
+| `command`    | `string`   | ❌       | Additional flags to append to npm run commands           |
+| `runScripts` | `string[]` | ❌       | Select predefined scripts to run across multiple modules |
 
 ---
 
@@ -192,18 +195,20 @@ The extension will:
 
 All commands are available via the Command Palette and have default keyboard shortcuts:
 
-| Command Id                           | Palette Label                        | Default Shortcut |
-| ------------------------------------ | ------------------------------------ | ---------------- |
-| `terminalManager.startAll`           | **Terminals: Start All**             | `Alt+1`          |
-| `terminalManager.stopAll`            | **Terminals: Stop All**              | `Alt+2`          |
-| `terminalManager.startTerminal`      | **Terminals: Start Terminal**        | `Alt+3`          |
-| `terminalManager.stopTerminal`       | **Terminals: Stop Terminal**         | `Alt+4`          |
-| `terminalManager.startGroup`         | **Terminals: Start Group**           | `Alt+5`          |
-| `terminalManager.stopGroup`          | **Terminals: Stop Group**            | `Alt+6`          |
-| `terminalManager.startSelected`      | **Terminals: Start Selected**        | `Shift+1`        |
-| `terminalManager.stopSelected`       | **Terminals: Stop Selected**         | `Shift+2`        |
-| `terminalManager.runScriptInModule`  | **Terminals: Run Script In Module**  | `Shift+3`        |
-| `terminalManager.stopScriptInModule` | **Terminals: Stop Script In Module** | `Shift+4`        |
+| Command Id                                     | Palette Label                                   | Default Shortcut |
+| ---------------------------------------------- | ----------------------------------------------- | ---------------- |
+| `terminalManager.startAll`                     | **Terminals: Start All**                        | `Alt+1`          |
+| `terminalManager.stopAll`                      | **Terminals: Stop All**                         | `Alt+2`          |
+| `terminalManager.startTerminal`                | **Terminals: Start Terminal**                   | `Alt+3`          |
+| `terminalManager.stopTerminal`                 | **Terminals: Stop Terminal**                    | `Alt+4`          |
+| `terminalManager.startGroup`                   | **Terminals: Start Group**                      | `Alt+5`          |
+| `terminalManager.stopGroup`                    | **Terminals: Stop Group**                       | `Alt+6`          |
+| `terminalManager.startSelected`                | **Terminals: Start Selected**                   | `Shift+1`        |
+| `terminalManager.stopSelected`                 | **Terminals: Stop Selected**                    | `Shift+2`        |
+| `terminalManager.runScriptInModule`            | **Terminals: Run Script In Module**             | `Shift+3`        |
+| `terminalManager.stopScriptInModule`           | **Terminals: Stop Script In Module**            | `Shift+4`        |
+| `terminalManager.runScriptsInSelectedModules`  | **Terminals: Run Scripts in Selected Modules**  | `Shift+5`        |
+| `terminalManager.stopScriptsInSelectedModules` | **Terminals: Stop Scripts in Selected Modules** | `Shift+6`        |
 
 ### Customizing Keyboard Shortcuts
 
@@ -303,6 +308,11 @@ Where `./scripts/microservices.json` contains:
       "name": "Mobile API",
       "location": "services/mobile-api",
       "command": "--env development"
+    },
+    {
+      "name": "Admin Panel",
+      "location": "project/administration",
+      "runScripts": ["watch", "build", "test"]
     }
   ]
 }
@@ -430,10 +440,15 @@ terminal-manager/
 
 ## 📦 Release Notes
 
+### 1.2.0
+
+- ✨ **NEW**: Added `runScriptsInSelectedModules` which runs a group of predefined scripts in selected modules
+- ✨ **NEW**: Added `stopScriptsInSelectedModules` which stops a group of predefined scripts in selected modules
+
 ### 1.1.0
 
-- ✨ **NEW**: Added `scriptModules` support for running npm scripts from multiple projects
-- ✨ **NEW**: Added `stopScriptInModule` command to stop running script terminals
+- 🖱️ Added `scriptModules` support for running npm scripts from multiple projects
+- 🖱️ Added `stopScriptInModule` command to stop running script terminals
 - 🔧 Added support for external command files via `location` property
 - 🔧 Implemented automatic configuration reload
 - 🔧 Improved error handling for file operations

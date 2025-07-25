@@ -3,7 +3,7 @@
   "displayName": "Terminal Manager",
   "description": "Rozszerzenie do zarządzania terminalami w VSCode.",
   "publisher": "mstasiowski",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "engines": {
     "vscode": "^1.102.0"
   },
@@ -110,6 +110,13 @@
               "command": {
                 "type": "string",
                 "description": "Dodatkowe flagi do komend npm (opcjonalne)"
+              },
+              "runScripts": {
+                "type": "array",
+                "description": "Lista skryptów npm do uruchomienia w tym module",
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [
@@ -161,6 +168,14 @@
       {
         "command": "terminalManager.stopScriptInModule",
         "title": "Terminals: Stop Script In Module"
+      },
+      {
+        "command": "terminalManager.runScriptsInSelectedModules",
+        "title": "Terminals: Run Scripts In Selected Modules"
+      },
+      {
+        "command": "terminalManager.stopScriptsInSelectedModules",
+        "title": "Terminals: Stop Scripts In Selected Modules"
       }
     ],
     "keybindings": [
@@ -212,6 +227,16 @@
       {
         "command": "terminalManager.stopScriptInModule",
         "key": "shift+4",
+        "when": "true"
+      },
+      {
+        "command": "terminalManager.runScriptsInSelectedModules",
+        "key": "shift+5",
+        "when": "true"
+      },
+      {
+        "command": "terminalManager.stopScriptsInSelectedModules",
+        "key": "shift+6",
         "when": "true"
       }
     ]
