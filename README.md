@@ -99,7 +99,18 @@ Add terminals, groups, and script modules in your _workspace_ or _user_ `setting
   "terminalManager.groups": {
     "dev": ["Dev Server", "Backend API"],
     "infra": ["MongoDB"]
-  }
+  },
+  "terminalManager.scriptModules": [
+    {
+      "name": "Administration module",
+      "location": "project/administration"
+    },
+    {
+      "name": "Administration - Run All Tests",
+      "location": "project1/administration",
+      "runScripts": ["test", "test:ping", "test:unit", "test:integration"]
+    }
+  ]
 }
 ```
 
