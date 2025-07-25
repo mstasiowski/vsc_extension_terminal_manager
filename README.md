@@ -150,6 +150,11 @@ Execute npm scripts from different projects/modules:
       "name": "Admin Panel",
       "location": "modules/admin",
       "command": "--host 0.0.0.0 --port 3001"
+    },
+    {
+      "name": "Dashboard",
+      "location": "modules/dashboard",
+      "runScripts": ["build", "test"]
     }
   ]
 }
@@ -171,12 +176,12 @@ The extension will:
 
 #### Terminal Object Properties
 
-| Property    | Type       | Required | Description                                                   |
-| ----------- | ---------- | -------- | ------------------------------------------------------------- |
-| `name`      | `string`   | ✅       | Display name for the terminal                                 |
-| `commands`  | `string[]` | ✅\*     | Array of commands to execute in sequence                      |
-| `location`  | `string`   | ✅\*     | Path to JSON file containing commands (relative to workspace) |
-| `autoStart` | `boolean`  | ❌       | Whether this terminal should start with "Start All" command   |
+| Property    | Type       | Required | Description                                                                              |
+| ----------- | ---------- | -------- | ---------------------------------------------------------------------------------------- |
+| `name`      | `string`   | ✅       | Display name for the terminal                                                            |
+| `commands`  | `string[]` | ✅\*     | Array of commands to execute in sequence                                                 |
+| `location`  | `string`   | ✅\*     | Path to JSON file containing commands (relative to workspace)                            |
+| `autoStart` | `boolean`  | ❌       | Decides whether the terminal should start at boot time and with the ‘Start All’ command. |
 
 \*Either `commands` OR `location` is required, but not both.
 
