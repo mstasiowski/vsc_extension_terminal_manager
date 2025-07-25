@@ -4,6 +4,7 @@
   "description": "Rozszerzenie do zarządzania terminalami w VSCode.",
   "publisher": "mstasiowski",
   "version": "1.2.0",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.102.0"
   },
