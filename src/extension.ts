@@ -8,11 +8,18 @@ let terminalMap: Map<string, vscode.Terminal> = new Map();
 //info Mapa przechowująca watchers dla plików
 let fileWatchers: Map<string, vscode.FileSystemWatcher> = new Map();
 
+//info Funkcja pomocnicza do pobierania aktualnej konfiguracji
+function getCurrentConfig() {
+  const config = vscode.workspace.getConfiguration("terminalManager");
+  return {
+    terminals: config.get<any[]>("terminals") || [],
+    groups: config.get<{ [key: string]: string[] }>("groups") || {},
+    scriptModules: config.get<any[]>("scriptModules") || [],
+  };
+}
+
 //info Funkcja aktywująca rozszerzenie
 export function activate(context: vscode.ExtensionContext) {
-  const config = vscode.workspace.getConfiguration("terminalManager");
-  const terminals = config.get<any[]>("terminals") || [];
-
   //info Funkcja pomocnicza: uruchom terminal i dodaj go do mapy
   async function startTerminal(
     name: string,
@@ -149,6 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
   //info Komenda: uruchom wszystkie terminale z autoStart = true
   context.subscriptions.push(
     vscode.commands.registerCommand("terminalManager.startAll", () => {
+      const { terminals } = getCurrentConfig(); // Pobierz aktualną konfigurację
       terminals.forEach((term) => {
         if (term.autoStart) {
           startTerminal(term.name, term.commands, term.location);
@@ -162,6 +170,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "terminalManager.startSelected",
       async () => {
+        const { terminals } = getCurrentConfig(); // Pobierz aktualną konfigurację
         const selection = await vscode.window.showQuickPick(
           terminals.map((t) => ({
             label: t.name,
@@ -245,6 +254,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "terminalManager.startTerminal",
       async () => {
+        const { terminals } = getCurrentConfig(); // Pobierz aktualną konfigurację
         const choices = terminals.map((t) => t.name);
         const pick = await vscode.window.showQuickPick(choices, {
           placeHolder: "Wybierz terminal do uruchomienia",
@@ -280,7 +290,7 @@ export function activate(context: vscode.ExtensionContext) {
   //info Komenda: uruchom grupę terminali (zdefiniowaną w settings.json)
   context.subscriptions.push(
     vscode.commands.registerCommand("terminalManager.startGroup", async () => {
-      const groups = config.get<{ [key: string]: string[] }>("groups") || {};
+      const { terminals, groups } = getCurrentConfig(); // Pobierz aktualną konfigurację
       const groupNames = Object.keys(groups);
 
       if (groupNames.length === 0) {
@@ -314,7 +324,7 @@ export function activate(context: vscode.ExtensionContext) {
   //info Komenda: zatrzymaj wszystkie terminale należące do wybranej grupy
   context.subscriptions.push(
     vscode.commands.registerCommand("terminalManager.stopGroup", async () => {
-      const groups = config.get<{ [key: string]: string[] }>("groups") || {};
+      const { groups } = getCurrentConfig(); // Pobierz aktualną konfigurację
       const groupNames = Object.keys(groups);
 
       if (groupNames.length === 0) {
@@ -344,21 +354,167 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
+  //info Uruchom skrypty npm z wybranych modułów/projektów
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "terminalManager.runScriptInModule",
+      async () => {
+        const { scriptModules } = getCurrentConfig();
+
+        if (scriptModules.length === 0) {
+          vscode.window.showWarningMessage(
+            "Brak zdefiniowanych modułów w 'terminalManager.scriptModules'."
+          );
+          return;
+        }
+
+        const selectedModule = await vscode.window.showQuickPick(
+          scriptModules.map((mod) => ({
+            label: mod.name,
+            description: mod.location,
+            mod,
+          })),
+          {
+            placeHolder: "Wybierz moduł (folder z package.json)",
+          }
+        );
+
+        if (!selectedModule) return;
+
+        const { location, command: extraFlags = "" } = selectedModule.mod;
+
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+          vscode.window.showErrorMessage("Brak otwartego folderu roboczego.");
+          return;
+        }
+
+        const modulePath = path.isAbsolute(location)
+          ? location
+          : path.join(workspaceFolder.uri.fsPath, location);
+        const packageJsonPath = path.join(modulePath, "package.json");
+
+        let scripts: string[] = [];
+
+        try {
+          const fileContent = fs.readFileSync(packageJsonPath, "utf8");
+          const pkg = JSON.parse(fileContent);
+
+          if (pkg.scripts && typeof pkg.scripts === "object") {
+            scripts = Object.keys(pkg.scripts);
+          } else {
+            vscode.window.showErrorMessage(
+              `Brak sekcji "scripts" w ${packageJsonPath}`
+            );
+            return;
+          }
+        } catch (err) {
+          vscode.window.showErrorMessage(
+            `Błąd wczytywania package.json: ${(err as Error).message}`
+          );
+          return;
+        }
+
+        const selectedScript = await vscode.window.showQuickPick(scripts, {
+          placeHolder: "Wybierz akcję (npm script)",
+        });
+
+        if (!selectedScript) return;
+
+        // Tworzenie unikalnej nazwy terminala
+        const termName = `${selectedModule.label} - ${selectedScript}`;
+
+        if (terminalMap.has(termName)) {
+          vscode.window.showInformationMessage(
+            `Terminal "${termName}" już działa.`
+          );
+          return;
+        }
+
+        const term = vscode.window.createTerminal({
+          name: termName,
+          cwd: modulePath,
+        });
+
+        terminalMap.set(termName, term);
+
+        term.show();
+
+        // Skonstruuj komendę z opcjonalnymi flagami
+        const finalCommand = `npm run ${selectedScript} ${extraFlags}`.trim();
+        term.sendText(finalCommand);
+
+        const disposable = vscode.window.onDidCloseTerminal(
+          (closedTerminal) => {
+            if (closedTerminal === term) {
+              terminalMap.delete(termName);
+              disposable.dispose();
+            }
+          }
+        );
+
+        context.subscriptions.push(disposable);
+      }
+    )
+  );
+
+  //info Zatrzymaj skrypty npm z wybranych modułów/projektów
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "terminalManager.stopScriptInModule",
+      async () => {
+        const terminals = Array.from(terminalMap.entries())
+          .filter(([name, _]) => name.includes(" - ")) // tylko te tworzone przez runScriptInModule
+          .map(([name]) => name);
+
+        if (terminals.length === 0) {
+          vscode.window.showInformationMessage(
+            "Brak aktywnych terminali ze skryptami do modułów."
+          );
+          return;
+        }
+
+        const selection = await vscode.window.showQuickPick(terminals, {
+          canPickMany: true,
+          placeHolder:
+            "Wybierz terminale skryptów do modułów, które mają zostać zatrzymane",
+        });
+
+        if (!selection || selection.length === 0) {
+          vscode.window.showInformationMessage(
+            "Nie wybrano żadnych terminali."
+          );
+          return;
+        }
+
+        selection.forEach((name) => {
+          const term = terminalMap.get(name);
+          if (term) {
+            term.dispose();
+            terminalMap.delete(name);
+          }
+        });
+      }
+    )
+  );
+
   //info Uruchom terminale z autoStart=true automatycznie po uruchomieniu vscode
-  terminals.forEach((term) => {
+  const { terminals: initialTerminals } = getCurrentConfig();
+  initialTerminals.forEach((term) => {
     if (term.autoStart) {
       startTerminal(term.name, term.commands, term.location);
     }
   });
 
-  //info Nasłuchuj na zmiany konfiguracji terminalManager.terminals i terminalManager.groups
+  //info Nasłuchuj na zmiany konfiguracji terminalManager
   vscode.workspace.onDidChangeConfiguration((e) => {
     if (
       e.affectsConfiguration("terminalManager.terminals") ||
-      e.affectsConfiguration("terminalManager.groups")
+      e.affectsConfiguration("terminalManager.groups") ||
+      e.affectsConfiguration("terminalManager.scriptModules")
     ) {
       vscode.window.showInformationMessage(
-        "Zmieniono konfigurację terminali lub grup - przeładowuję terminale..."
+        "Zmieniono konfigurację terminali - przeładowuję terminale..."
       );
 
       // Zatrzymaj wszystkie istniejące terminale
@@ -369,11 +525,8 @@ export function activate(context: vscode.ExtensionContext) {
       fileWatchers.forEach((watcher) => watcher.dispose());
       fileWatchers.clear();
 
-      // Załaduj nową konfigurację
-      const newConfig = vscode.workspace.getConfiguration("terminalManager");
-      const newTerminals = newConfig.get<any[]>("terminals") || [];
-
-      // Uruchom terminale z autoStart = true z nowej konfiguracji
+      // Załaduj nową konfigurację i uruchom terminale z autoStart = true
+      const { terminals: newTerminals } = getCurrentConfig();
       newTerminals.forEach((term) => {
         if (term.autoStart) {
           startTerminal(term.name, term.commands, term.location);

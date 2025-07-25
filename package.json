@@ -92,6 +92,32 @@
             }
           },
           "default": {}
+        },
+        "terminalManager.scriptModules": {
+          "type": "array",
+          "description": "Lista modułów/projektów z package.json do uruchamiania skryptów npm",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Nazwa modułu/projektu"
+              },
+              "location": {
+                "type": "string",
+                "description": "Ścieżka do folderu z package.json"
+              },
+              "command": {
+                "type": "string",
+                "description": "Dodatkowe flagi do komend npm (opcjonalne)"
+              }
+            },
+            "required": [
+              "name",
+              "location"
+            ]
+          },
+          "default": []
         }
       }
     },
@@ -127,6 +153,14 @@
       {
         "command": "terminalManager.stopSelected",
         "title": "Terminals: Stop Selected"
+      },
+      {
+        "command": "terminalManager.runScriptInModule",
+        "title": "Terminals: Run Script In Module"
+      },
+      {
+        "command": "terminalManager.stopScriptInModule",
+        "title": "Terminals: Stop Script In Module"
       }
     ],
     "keybindings": [
@@ -168,6 +202,16 @@
       {
         "command": "terminalManager.stopSelected",
         "key": "shift+2",
+        "when": "true"
+      },
+      {
+        "command": "terminalManager.runScriptInModule",
+        "key": "shift+3",
+        "when": "true"
+      },
+      {
+        "command": "terminalManager.stopScriptInModule",
+        "key": "shift+4",
         "when": "true"
       }
     ]

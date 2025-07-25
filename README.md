@@ -1,38 +1,63 @@
 # Terminal Manager for VS Code
 
-A lightweight extension that lets you define, launch, and stop **named terminal sessions and terminal groups** directly from the Command Palette or keyboard shortcuts. Ideal when your project needs several long‑running processes (e.g. frontend, backend, database, build watcher) but you don't want them running all the time.
+A lightweight extension that lets you define, launch, and stop **named terminal sessions, terminal groups, and npm scripts from multiple projects** directly from the Command Palette or keyboard shortcuts. Ideal when your project needs several long‑running processes (e.g. frontend, backend, database, build watcher) but you don't want them running all the time.
 
 ---
 
 ## ✨ Key Features
 
-| Feature                | What it does                                                                        |
-| ---------------------- | ----------------------------------------------------------------------------------- |
-| **Start All**          | Launches every terminal that has `"autoStart": true` in your settings               |
-| **Start Selected**     | Multi‑select UI to start any subset of terminals                                    |
-| **Stop Selected**      | Multi‑select UI to stop chosen running terminals                                    |
-| **Start / Stop Group** | Launch or dispose an entire group of terminals defined in settings                  |
-| **Start / Stop One**   | Quick pick to handle a single terminal                                              |
-| **Persist Names**      | Each terminal keeps a stable, human‑friendly name so you always know what's running |
-| **Multiple Commands**  | Each terminal can execute multiple commands in sequence                             |
-| **External Config**    | Load commands from external JSON files using the `location` property                |
-| **Auto Reload**        | Automatically reloads terminals when configuration changes                          |
+| Feature                   | What it does                                                                        |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| **Start All**             | Launches every terminal that has `"autoStart": true` in your settings               |
+| **Start Selected**        | Multi‑select UI to start any subset of terminals                                    |
+| **Stop Selected**         | Multi‑select UI to stop chosen running terminals                                    |
+| **Start / Stop Group**    | Launch or dispose an entire group of terminals defined in settings                  |
+| **Start / Stop One**      | Quick pick to handle a single terminal                                              |
+| **Run Script in Module**  | Execute npm scripts from different projects/modules with optional flags             |
+| **Stop Script in Module** | Stop running npm script terminals from modules                                      |
+| **Persist Names**         | Each terminal keeps a stable, human‑friendly name so you always know what's running |
+| **Multiple Commands**     | Each terminal can execute multiple commands in sequence                             |
+| **External Config**       | Load commands from external JSON files using the `location` property                |
+| **Auto Reload**           | Automatically reloads terminals when configuration changes                          |
 
 ---
 
 ## 🚀 Getting Started
 
-1. **Build the extension**
+### Prerequisites for Development
+
+- **Node.js 20.x or higher**
+- **VS Code 1.102.0 or higher**
+- **TypeScript** (installed via npm)
+- **VSCE** (Visual Studio Code Extension manager) - install globally: `npm install -g @vscode/vsce`
+
+### Building the Extension
+
+1. **Clone/Download the project**
+2. **Install dependencies**
 
    ```bash
    npm install
+   ```
+
+3. **Compile TypeScript**
+
+   ```bash
+   npm run compile
+   # or for watch mode during development:
+   npm run watch
+   ```
+
+4. **Package the extension**
+
+   ```bash
    npm run vscode:prepublish
    vsce package
    ```
 
    This produces `terminal-manager‑*.vsix`.
 
-2. **Install locally**
+5. **Install locally**
 
    ```bash
    code --install-extension terminal-manager-<version>.vsix
@@ -40,13 +65,13 @@ A lightweight extension that lets you define, launch, and stop **named terminal 
 
    or **Extensions → ⋮ → Install from VSIX…**.
 
-3. Reload VS Code and open the **Command Palette ⇧⌘P / ⇧CtrlP**. Type `Terminals:` to see all available actions.
+6. Reload VS Code and open the **Command Palette ⇧⌘P / ⇧CtrlP**. Type `Terminals:` to see all available actions.
 
 ---
 
 ## ⚙️ Configuration
 
-Add terminals and groups in your _workspace_ or _user_ `settings.json`.
+Add terminals, groups, and script modules in your _workspace_ or _user_ `settings.json`.
 
 ### Basic Configuration
 
@@ -103,12 +128,44 @@ Example `./configs/terminal-commands.json`:
 }
 ```
 
+### Script Modules Configuration
+
+Execute npm scripts from different projects/modules:
+
+```jsonc
+{
+  "terminalManager.scriptModules": [
+    {
+      "name": "Frontend App",
+      "location": "projects/frontend"
+    },
+    {
+      "name": "Backend API",
+      "location": "projects/backend-api",
+      "command": "--prod"
+    },
+    {
+      "name": "Admin Panel",
+      "location": "modules/admin",
+      "command": "--host 0.0.0.0 --port 3001"
+    }
+  ]
+}
+```
+
+The extension will:
+
+1. Look for `package.json` in each module's location
+2. Present available npm scripts for selection
+3. Execute `npm run <script> <optional-flags>` in the module's directory
+
 ### Settings Reference
 
-| Setting                     | Type     | Description                                                                           |
-| --------------------------- | -------- | ------------------------------------------------------------------------------------- |
-| `terminalManager.terminals` | `array`  | List of terminal objects with **name**, **commands/location**, and **autoStart** flag |
-| `terminalManager.groups`    | `object` | Map of **groupName → array of terminal names**                                        |
+| Setting                         | Type     | Description                                                                           |
+| ------------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| `terminalManager.terminals`     | `array`  | List of terminal objects with **name**, **commands/location**, and **autoStart** flag |
+| `terminalManager.groups`        | `object` | Map of **groupName → array of terminal names**                                        |
+| `terminalManager.scriptModules` | `array`  | List of project modules with package.json for running npm scripts                     |
 
 #### Terminal Object Properties
 
@@ -121,22 +178,32 @@ Example `./configs/terminal-commands.json`:
 
 \*Either `commands` OR `location` is required, but not both.
 
+#### Script Module Object Properties
+
+| Property   | Type     | Required | Description                                    |
+| ---------- | -------- | -------- | ---------------------------------------------- |
+| `name`     | `string` | ✅       | Display name for the module                    |
+| `location` | `string` | ✅       | Path to folder containing package.json         |
+| `command`  | `string` | ❌       | Additional flags to append to npm run commands |
+
 ---
 
 ## 🖱️ Commands & Keyboard Shortcuts
 
 All commands are available via the Command Palette and have default keyboard shortcuts:
 
-| Command Id                      | Palette Label                 | Default Shortcut |
-| ------------------------------- | ----------------------------- | ---------------- |
-| `terminalManager.startAll`      | **Terminals: Start All**      | `Alt+1`          |
-| `terminalManager.stopAll`       | **Terminals: Stop All**       | `Alt+2`          |
-| `terminalManager.startTerminal` | **Terminals: Start Terminal** | `Alt+3`          |
-| `terminalManager.stopTerminal`  | **Terminals: Stop Terminal**  | `Alt+4`          |
-| `terminalManager.startGroup`    | **Terminals: Start Group**    | `Alt+5`          |
-| `terminalManager.stopGroup`     | **Terminals: Stop Group**     | `Alt+6`          |
-| `terminalManager.startSelected` | **Terminals: Start Selected** | `Shift+1`        |
-| `terminalManager.stopSelected`  | **Terminals: Stop Selected**  | `Shift+2`        |
+| Command Id                           | Palette Label                        | Default Shortcut |
+| ------------------------------------ | ------------------------------------ | ---------------- |
+| `terminalManager.startAll`           | **Terminals: Start All**             | `Alt+1`          |
+| `terminalManager.stopAll`            | **Terminals: Stop All**              | `Alt+2`          |
+| `terminalManager.startTerminal`      | **Terminals: Start Terminal**        | `Alt+3`          |
+| `terminalManager.stopTerminal`       | **Terminals: Stop Terminal**         | `Alt+4`          |
+| `terminalManager.startGroup`         | **Terminals: Start Group**           | `Alt+5`          |
+| `terminalManager.stopGroup`          | **Terminals: Stop Group**            | `Alt+6`          |
+| `terminalManager.startSelected`      | **Terminals: Start Selected**        | `Shift+1`        |
+| `terminalManager.stopSelected`       | **Terminals: Stop Selected**         | `Shift+2`        |
+| `terminalManager.runScriptInModule`  | **Terminals: Run Script In Module**  | `Shift+3`        |
+| `terminalManager.stopScriptInModule` | **Terminals: Stop Script In Module** | `Shift+4`        |
 
 ### Customizing Keyboard Shortcuts
 
@@ -153,6 +220,10 @@ Alternatively, add custom keybindings in your `keybindings.json`:
   {
     "key": "ctrl+alt+s",
     "command": "terminalManager.stopAll"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "terminalManager.runScriptInModule"
   }
 ]
 ```
@@ -214,6 +285,36 @@ Where `./scripts/microservices.json` contains:
 }
 ```
 
+### Script Modules for Multiple Projects
+
+```jsonc
+{
+  "terminalManager.scriptModules": [
+    {
+      "name": "Main App",
+      "location": "apps/main-application"
+    },
+    {
+      "name": "Admin Dashboard",
+      "location": "apps/admin-dashboard",
+      "command": "--host 0.0.0.0 --port 3001"
+    },
+    {
+      "name": "Mobile API",
+      "location": "services/mobile-api",
+      "command": "--env development"
+    }
+  ]
+}
+```
+
+**Usage Flow:**
+
+1. Press `Shift+3` or run **Terminals: Run Script In Module**
+2. Select a module (e.g., "Admin Dashboard")
+3. Choose an npm script (e.g., "start", "build", "test")
+4. Terminal opens and runs: `npm run start --host 0.0.0.0 --port 3001`
+
 ### Docker Development Environment
 
 ```jsonc
@@ -238,7 +339,17 @@ Where `./scripts/microservices.json` contains:
   "terminalManager.groups": {
     "infrastructure": ["Database", "Redis Cache"],
     "development": ["Database", "Redis Cache", "API Server"]
-  }
+  },
+  "terminalManager.scriptModules": [
+    {
+      "name": "API",
+      "location": "api"
+    },
+    {
+      "name": "Frontend",
+      "location": "frontend"
+    }
+  ]
 }
 ```
 
@@ -246,7 +357,7 @@ Where `./scripts/microservices.json` contains:
 
 ## 🔄 Auto-reload Behavior
 
-The extension automatically monitors changes to the `terminalManager.terminals` configuration. When you modify your settings:
+The extension automatically monitors changes to all `terminalManager.*` configurations. When you modify your settings:
 
 1. All currently running terminals are automatically stopped
 2. The terminal map is cleared
@@ -259,27 +370,61 @@ This ensures your terminal setup stays in sync with your configuration without r
 
 ## 📋 Known Issues
 
-- Closing a terminal manually (✖) does **not** remove it from internal tracking. Use **Terminals: Stop Terminal** or **Terminals: Stop Selected** to properly clean up the terminal map.
+- Closing a terminal manually (✖) does **not** remove it from internal tracking. Use **Terminals: Stop Terminal**, **Terminals: Stop Selected**, or **Terminals: Stop Script In Module** to properly clean up the terminal map.
 
 ---
 
-## 🛠️ Development
+## 🛠️ Development & Contributing
 
-### Prerequisites
+### Development Setup
 
-- Node.js 20.x or higher
-- VS Code 1.102.0 or higher
+1. **Clone the repository**
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Open in VS Code**
+4. **Start development**
+   ```bash
+   npm run watch    # Compile TypeScript in watch mode
+   ```
+5. **Press F5** to launch a new Extension Development Host window
+6. **Test your changes** in the development window
 
 ### Build Commands
 
 ```bash
-npm install          # Install dependencies
-npm run compile      # Compile TypeScript
-npm run watch        # Watch mode for development
-npm run lint         # Run ESLint
-npm run test         # Run tests
-npm run vscode:prepublish  # Prepare for publishing
+npm install              # Install dependencies
+npm run compile          # Compile TypeScript once
+npm run watch            # Watch mode for development
+npm run lint             # Run ESLint
+npm run test             # Run tests
+npm run vscode:prepublish # Prepare for publishing (includes compile & lint)
+vsce package             # Create .vsix package
 ```
+
+### Project Structure
+
+```
+terminal-manager/
+├── src/
+│   └── extension.ts     # Main extension code
+├── out/                 # Compiled JavaScript (generated)
+├── package.json         # Extension manifest & dependencies
+├── tsconfig.json        # TypeScript configuration
+├── .eslintrc.json       # ESLint configuration
+└── README.md            # This file
+```
+
+### Required Tools for Development
+
+- **Node.js 20.x+** - Runtime environment
+- **TypeScript** - Language (installed via npm)
+- **VS Code 1.102.0+** - Development environment
+- **VSCE** - Extension packaging tool
+  ```bash
+  npm install -g @vscode/vsce
+  ```
 
 ---
 
@@ -287,14 +432,17 @@ npm run vscode:prepublish  # Prepare for publishing
 
 ### 1.1.0
 
-- Added support for external command files via `location` property
-- Implemented automatic configuration reload
-- Improved error handling for file operations
-- Enhanced keyboard shortcuts support
+- ✨ **NEW**: Added `scriptModules` support for running npm scripts from multiple projects
+- ✨ **NEW**: Added `stopScriptInModule` command to stop running script terminals
+- 🔧 Added support for external command files via `location` property
+- 🔧 Implemented automatic configuration reload
+- 🔧 Improved error handling for file operations
+- 🔧 Enhanced keyboard shortcuts support
+- 📝 Updated documentation with comprehensive examples
 
 ### 1.0.0
 
-- Initial public version
-- Start/stop commands for individual terminals and groups
-- Multi-select interface for batch operations
-- Support for multiple commands per terminal executed in sequence
+- 🎉 Initial public version
+- ⚡ Start/stop commands for individual terminals and groups
+- 🖱️ Multi-select interface for batch operations
+- 📝 Support for multiple commands per terminal executed in sequence
