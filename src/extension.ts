@@ -507,9 +507,12 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
-        const selectedScript = await vscode.window.showQuickPick(scripts, {
-          placeHolder: "Wybierz akcję (npm script)",
-        });
+        const selectedScript = await vscode.window.showQuickPick(
+          scripts.reverse(),
+          {
+            placeHolder: "Wybierz akcję (npm script)",
+          }
+        );
 
         if (!selectedScript) return;
 
@@ -524,6 +527,292 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   //info Uruchom predefiniowane skrypty w wybranych modułach
+  // context.subscriptions.push(
+  //   vscode.commands.registerCommand(
+  //     "terminalManager.runScriptsInSelectedModules",
+  //     async () => {
+  //       const { scriptModules } = getCurrentConfig();
+
+  //       if (scriptModules.length === 0) {
+  //         vscode.window.showWarningMessage(
+  //           "Brak zdefiniowanych modułów w 'terminalManager.scriptModules'."
+  //         );
+  //         return;
+  //       }
+
+  //       // Filtruj tylko moduły, które mają zdefiniowane runScripts
+  //       const modulesWithScripts = scriptModules.filter(
+  //         (mod) =>
+  //           mod.runScripts &&
+  //           Array.isArray(mod.runScripts) &&
+  //           mod.runScripts.length > 0
+  //       );
+
+  //       if (modulesWithScripts.length === 0) {
+  //         vscode.window.showWarningMessage(
+  //           "Brak modułów z zdefiniowanymi 'runScripts'. Dodaj pole 'runScripts' z tablicą nazw skryptów npm do konfiguracji modułów."
+  //         );
+  //         return;
+  //       }
+
+  //       const selectedModules = await vscode.window.showQuickPick(
+  //         modulesWithScripts.map((mod) => ({
+  //           label: mod.name,
+  //           description: `${mod.location} - Skrypty: ${mod.runScripts.join(
+  //             ", "
+  //           )}`,
+  //           mod,
+  //         })),
+  //         {
+  //           canPickMany: true,
+  //           placeHolder:
+  //             "Wybierz moduły, w których chcesz uruchomić predefiniowane skrypty",
+  //         }
+  //       );
+
+  //       if (!selectedModules || selectedModules.length === 0) {
+  //         vscode.window.showInformationMessage("Nie wybrano żadnych modułów.");
+  //         return;
+  //       }
+
+  //       // Uruchom wszystkie predefiniowane skrypty dla każdego wybranego modułu
+  //       for (const selectedModule of selectedModules) {
+  //         const {
+  //           location,
+  //           command: extraFlags = "",
+  //           runScripts,
+  //         } = selectedModule.mod;
+
+  //         for (const script of runScripts) {
+  //           await runScriptInModule(
+  //             selectedModule.label,
+  //             location,
+  //             script,
+  //             extraFlags
+  //           );
+  //         }
+  //       }
+
+  //       // ! test innego dzialania wyswietlania terminali
+
+  //       // ! test innego dzialania wyswietlania terminali
+
+  //       vscode.window.showInformationMessage(
+  //         `Uruchomiono skrypty w ${selectedModules.length} module(ach).`
+  //       );
+  //     }
+  //   )
+  // );
+  //   context.subscriptions.push(
+  //     vscode.commands.registerCommand(
+  //       "terminalManager.runScriptsInSelectedModules",
+  //       async () => {
+  //         const { scriptModules } = getCurrentConfig();
+
+  //         if (scriptModules.length === 0) {
+  //           vscode.window.showWarningMessage(
+  //             "Brak zdefiniowanych modułów w 'terminalManager.scriptModules'."
+  //           );
+  //           return;
+  //         }
+
+  //         // Filtruj tylko moduły, które mają zdefiniowane runScripts
+  //         const modulesWithScripts = scriptModules.filter(
+  //           (mod) =>
+  //             mod.runScripts &&
+  //             Array.isArray(mod.runScripts) &&
+  //             mod.runScripts.length > 0
+  //         );
+
+  //         if (modulesWithScripts.length === 0) {
+  //           vscode.window.showWarningMessage(
+  //             "Brak modułów z zdefiniowanymi 'runScripts'. Dodaj pole 'runScripts' z tablicą nazw skryptów npm do konfiguracji modułów."
+  //           );
+  //           return;
+  //         }
+
+  //         const selectedModules = await vscode.window.showQuickPick(
+  //           modulesWithScripts.map((mod) => ({
+  //             label: mod.name,
+  //             description: `${mod.location} - Skrypty: ${mod.runScripts.join(
+  //               ", "
+  //             )}`,
+  //             mod,
+  //           })),
+  //           {
+  //             canPickMany: true,
+  //             placeHolder:
+  //               "Wybierz moduły, w których chcesz uruchomić predefiniowane skrypty",
+  //           }
+  //         );
+
+  //         if (!selectedModules || selectedModules.length === 0) {
+  //           vscode.window.showInformationMessage("Nie wybrano żadnych modułów.");
+  //           return;
+  //         }
+
+  //         // Uruchom wszystkie predefiniowane skrypty dla każdego wybranego modułu
+  //         for (const selectedModule of selectedModules) {
+  //           const {
+  //             location,
+  //             command: extraFlags = "",
+  //             runScripts,
+  //             name,
+  //           } = selectedModule.mod;
+
+  //           // Utwórz pełną ścieżkę do katalogu modułu
+  //           const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  //           if (!workspaceFolder) {
+  //             vscode.window.showErrorMessage("Brak otwartego folderu roboczego.");
+  //             continue;
+  //           }
+
+  //           const modulePath = path.isAbsolute(location)
+  //             ? location
+  //             : path.join(workspaceFolder.uri.fsPath, location);
+
+  //           // Sprawdź czy katalog istnieje
+  //           if (!fs.existsSync(modulePath)) {
+  //             vscode.window.showErrorMessage(
+  //               `Katalog "${modulePath}" nie istnieje dla modułu "${name}".`
+  //             );
+  //             continue;
+  //           }
+
+  //           // Utwórz jeden terminal dla wszystkich skryptów modułu
+  //           const terminalName = `[Module] ${name}`;
+  //           let terminal: vscode.Terminal;
+
+  //           // Sprawdź czy terminal o takiej nazwie już istnieje
+  //           const existingTerminal = terminalMap.get(terminalName);
+  //           if (existingTerminal) {
+  //             terminal = existingTerminal;
+  //             terminal.show();
+  //           } else {
+  //             terminal = vscode.window.createTerminal({
+  //               name: terminalName,
+  //               cwd: modulePath,
+  //             });
+  //             terminalMap.set(terminalName, terminal);
+  //           }
+
+  //           terminal.show();
+
+  //           // // Zbuduj polecenia połączone && żeby wykonały się kolejno
+  //           // const chainedCommands = runScripts
+  //           //   .map((script: any) => `npm run ${script} ${extraFlags}`.trim())
+  //           //   .join(" && ");
+
+  //           // terminal.sendText(chainedCommands);
+
+  //           terminal.show();
+
+  //           // Wykryj system operacyjny i dostosuj format komend
+  //           const isWindows = process.platform === "win32";
+
+  //           if (isWindows) {
+  //             // Dla Windows używamy skryptu PowerShell z minimalnym formatowaniem
+  //             let powershellScript = "";
+
+  //             // Inicjalizacja zmiennych
+  //             powershellScript += "$global:failed = $false\n";
+  //             powershellScript += "$ErrorActionPreference = 'Continue'\n";
+  //             powershellScript += "Clear-Host\n";
+
+  //             // Dodajemy każdy skrypt z obsługą błędów
+  //             for (let i = 0; i < runScripts.length; i++) {
+  //               const script = runScripts[i];
+
+  //               // Uruchomienie komendy bezpośrednio bez dodatkowych komunikatów
+  //               powershellScript += `npm run ${script} ${extraFlags}\n`;
+
+  //               // Prosty komunikat o wyniku
+  //               powershellScript += `if ($LASTEXITCODE -ne 0) {
+  //   echo "${script}: Błąd"
+  //   $global:failed = $true
+  //   break
+  // } else {
+  //   echo "${script}: OK"
+  // }\n`;
+
+  //               // Prosty separator
+  //               if (i < runScripts.length - 1) {
+  //                 powershellScript += `echo "---"\n`;
+  //               }
+  //             }
+
+  //             // Końcowe podsumowanie - bardzo minimalne
+  //             powershellScript += `if ($global:failed) {
+  //   echo "Wynik: Wystąpiły błędy"
+  // } else {
+  //   echo "Wynik: OK"
+  // }\n`;
+
+  //             // Wysyłamy skrypt PowerShell do wykonania
+  //             terminal.sendText(powershellScript);
+  //           } else {
+  //             // Dla Linux/MacOS używamy skryptu bash z minimalnym formatowaniem
+  //             let bashScript = "";
+
+  //             // Inicjalizacja zmiennych
+  //             bashScript += "failed=0\n";
+  //             bashScript += "clear\n";
+
+  //             // Dodajemy każdy skrypt z obsługą błędów
+  //             for (let i = 0; i < runScripts.length; i++) {
+  //               const script = runScripts[i];
+
+  //               // Uruchomienie komendy bezpośrednio
+  //               bashScript += `npm run ${script} ${extraFlags}\n`;
+
+  //               // Prosty komunikat o wyniku
+  //               bashScript += `if [ $? -ne 0 ]; then
+  //   echo "${script}: Błąd"
+  //   failed=1
+  //   break
+  // else
+  //   echo "${script}: OK"
+  // fi\n`;
+
+  //               // Prosty separator
+  //               if (i < runScripts.length - 1) {
+  //                 bashScript += `echo "---"\n`;
+  //               }
+  //             }
+
+  //             // Końcowe podsumowanie - bardzo minimalne
+  //             bashScript += `if [ $failed -eq 1 ]; then
+  //   echo "Wynik: Wystąpiły błędy"
+  // else
+  //   echo "Wynik: OK"
+  // fi\n`;
+
+  //             // Wysyłamy skrypt bash do wykonania
+  //             terminal.sendText(bashScript);
+  //           }
+
+  //           // Dodaj obsługę zamknięcia terminala
+  //           const disposable = vscode.window.onDidCloseTerminal(
+  //             (closedTerminal) => {
+  //               if (closedTerminal === terminal) {
+  //                 terminalMap.delete(terminalName);
+  //                 disposable.dispose();
+  //               }
+  //             }
+  //           );
+
+  //           context.subscriptions.push(disposable);
+  //         }
+
+  //         vscode.window.showInformationMessage(
+  //           `Uruchomiono skrypty w ${selectedModules.length} module(ach).`
+  //         );
+  //       }
+  //     )
+  //   );
+
+  // ! run script in selected modules test funkcji
+
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "terminalManager.runScriptsInSelectedModules",
@@ -537,7 +826,6 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
-        // Filtruj tylko moduły, które mają zdefiniowane runScripts
         const modulesWithScripts = scriptModules.filter(
           (mod) =>
             mod.runScripts &&
@@ -557,7 +845,7 @@ export function activate(context: vscode.ExtensionContext) {
             label: mod.name,
             description: `${mod.location} - Skrypty: ${mod.runScripts.join(
               ", "
-            )}`,
+            )} ${mod.command ? `- Flagi: ${mod.command}` : ""}`,
             mod,
           })),
           {
@@ -572,22 +860,85 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
-        // Uruchom wszystkie predefiniowane skrypty dla każdego wybranego modułu
         for (const selectedModule of selectedModules) {
           const {
             location,
             command: extraFlags = "",
             runScripts,
+            name,
           } = selectedModule.mod;
 
-          for (const script of runScripts) {
-            await runScriptInModule(
-              selectedModule.label,
-              location,
-              script,
-              extraFlags
-            );
+          const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+          if (!workspaceFolder) {
+            vscode.window.showErrorMessage("Brak otwartego folderu roboczego.");
+            continue;
           }
+
+          const modulePath = path.isAbsolute(location)
+            ? location
+            : path.join(workspaceFolder.uri.fsPath, location);
+
+          if (!fs.existsSync(modulePath)) {
+            vscode.window.showErrorMessage(
+              `Katalog "${modulePath}" nie istnieje dla modułu "${name}".`
+            );
+            continue;
+          }
+
+          const terminalName = `[Module] ${name}`;
+          let terminal: vscode.Terminal;
+
+          const existingTerminal = terminalMap.get(terminalName);
+          if (existingTerminal) {
+            existingTerminal.dispose();
+            terminalMap.delete(terminalName);
+          }
+
+          terminal = vscode.window.createTerminal({
+            name: terminalName,
+            cwd: modulePath,
+          });
+          terminalMap.set(terminalName, terminal);
+          terminal.show();
+
+          const isWindows = process.platform === "win32";
+
+          if (isWindows) {
+            let powershellScript = "Clear-Host\n";
+
+            for (let i = 0; i < runScripts.length; i++) {
+              const script = runScripts[i];
+              const command = `npm run ${script} ${extraFlags}`.trim();
+
+              powershellScript += `${command}\n`;
+              powershellScript += `if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n`;
+            }
+
+            terminal.sendText(powershellScript);
+          } else {
+            let bashScript = "clear\n";
+
+            for (let i = 0; i < runScripts.length; i++) {
+              const script = runScripts[i];
+              const command = `npm run ${script} ${extraFlags}`.trim();
+
+              bashScript += `${command}\n`;
+              bashScript += `if [ $? -ne 0 ]; then exit 1; fi\n`;
+            }
+
+            terminal.sendText(bashScript);
+          }
+
+          const disposable = vscode.window.onDidCloseTerminal(
+            (closedTerminal) => {
+              if (closedTerminal === terminal) {
+                terminalMap.delete(terminalName);
+                disposable.dispose();
+              }
+            }
+          );
+
+          context.subscriptions.push(disposable);
         }
 
         vscode.window.showInformationMessage(
@@ -596,6 +947,8 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  // ! run script in selected modules test funkcji
 
   //info Zatrzymaj skrypty npm z wybranych modułów/projektów (pojedynczy wybór)
   context.subscriptions.push(
@@ -717,31 +1070,129 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   //info Nasłuchuj na zmiany konfiguracji terminalManager
+  //   vscode.workspace.onDidChangeConfiguration((e) => {
+  //     if (
+  //       e.affectsConfiguration("terminalManager.terminals") ||
+  //       e.affectsConfiguration("terminalManager.groups") ||
+  //       e.affectsConfiguration("terminalManager.scriptModules")
+  //     ) {
+  //       vscode.window.showInformationMessage(
+  //         "Zmieniono konfigurację terminali - przeładowuję terminale..."
+  //       );
+
+  //       // Zatrzymaj wszystkie istniejące terminale
+  //       terminalMap.forEach((term) => term.dispose());
+  //       terminalMap.clear();
+
+  //       // Zatrzymaj wszystkie watchers
+  //       fileWatchers.forEach((watcher) => watcher.dispose());
+  //       fileWatchers.clear();
+
+  //       // Załaduj nową konfigurację i uruchom terminale z autoStart = true
+  //       const { terminals: newTerminals } = getCurrentConfig();
+  //       newTerminals.forEach((term) => {
+  //         if (term.autoStart) {
+  //           startTerminal(term.name, term.commands, term.location);
+  //         }
+  //       });
+  //     }
+  //   });
+
+  let previousConfig = getCurrentConfig();
+
   vscode.workspace.onDidChangeConfiguration((e) => {
-    if (
-      e.affectsConfiguration("terminalManager.terminals") ||
-      e.affectsConfiguration("terminalManager.groups") ||
-      e.affectsConfiguration("terminalManager.scriptModules")
-    ) {
-      vscode.window.showInformationMessage(
-        "Zmieniono konfigurację terminali - przeładowuję terminale..."
-      );
+    if (e.affectsConfiguration("terminalManager")) {
+      const newConfig = getCurrentConfig();
 
-      // Zatrzymaj wszystkie istniejące terminale
-      terminalMap.forEach((term) => term.dispose());
-      terminalMap.clear();
+      // Porównaj poprzednią i nową konfigurację terminali
+      if (e.affectsConfiguration("terminalManager.terminals")) {
+        const oldTerminals = previousConfig.terminals;
+        const newTerminals = newConfig.terminals;
 
-      // Zatrzymaj wszystkie watchers
-      fileWatchers.forEach((watcher) => watcher.dispose());
-      fileWatchers.clear();
+        // Znajdź terminale, które się zmieniły
+        const changedTerminals = newTerminals.filter((newTerm) => {
+          const oldTerm = oldTerminals.find((t) => t.name === newTerm.name);
+          return oldTerm && JSON.stringify(oldTerm) !== JSON.stringify(newTerm);
+        });
 
-      // Załaduj nową konfigurację i uruchom terminale z autoStart = true
-      const { terminals: newTerminals } = getCurrentConfig();
-      newTerminals.forEach((term) => {
-        if (term.autoStart) {
-          startTerminal(term.name, term.commands, term.location);
+        // Znajdź terminale, które zostały usunięte
+        const removedTerminals = oldTerminals.filter(
+          (oldTerm) => !newTerminals.find((t) => t.name === oldTerm.name)
+        );
+
+        // Zatrzymaj usunięte terminale
+        removedTerminals.forEach((term) => {
+          const terminal = terminalMap.get(term.name);
+          if (terminal) {
+            terminal.dispose();
+            terminalMap.delete(term.name);
+          }
+          // Usuń watcher jeśli istnieje
+          if (term.location) {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            let fullPath = term.location;
+            if (
+              workspaceFolders &&
+              workspaceFolders.length > 0 &&
+              !path.isAbsolute(term.location)
+            ) {
+              fullPath = path.join(
+                workspaceFolders[0].uri.fsPath,
+                term.location
+              );
+            }
+            const watcher = fileWatchers.get(fullPath);
+            if (watcher) {
+              watcher.dispose();
+              fileWatchers.delete(fullPath);
+            }
+          }
+        });
+
+        // Przeładuj zmienione terminale (tylko te z autoStart = true)
+        changedTerminals.forEach((term) => {
+          // Zatrzymaj stary terminal
+          const oldTerminal = terminalMap.get(term.name);
+          if (oldTerminal) {
+            oldTerminal.dispose();
+            terminalMap.delete(term.name);
+          }
+
+          // Usuń stary watcher
+          if (term.location) {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            let fullPath = term.location;
+            if (
+              workspaceFolders &&
+              workspaceFolders.length > 0 &&
+              !path.isAbsolute(term.location)
+            ) {
+              fullPath = path.join(
+                workspaceFolders[0].uri.fsPath,
+                term.location
+              );
+            }
+            const watcher = fileWatchers.get(fullPath);
+            if (watcher) {
+              watcher.dispose();
+              fileWatchers.delete(fullPath);
+            }
+          }
+
+          // Uruchom nowy terminal jeśli ma autoStart
+          if (term.autoStart) {
+            startTerminal(term.name, term.commands, term.location);
+          }
+        });
+
+        if (changedTerminals.length > 0 || removedTerminals.length > 0) {
+          vscode.window.showInformationMessage(
+            `Przeładowano ${changedTerminals.length} terminali, usunięto ${removedTerminals.length}.`
+          );
         }
-      });
+      }
+
+      previousConfig = newConfig;
     }
   });
 }

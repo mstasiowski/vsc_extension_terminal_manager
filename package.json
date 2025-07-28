@@ -182,62 +182,62 @@
     "keybindings": [
       {
         "command": "terminalManager.startAll",
-        "key": "alt+1",
+        "key": "ctrl+alt+1",
         "when": "true"
       },
       {
         "command": "terminalManager.stopAll",
-        "key": "alt+2",
+        "key": "ctrl+alt+2",
         "when": "true"
       },
       {
         "command": "terminalManager.startTerminal",
-        "key": "alt+3",
+        "key": "ctrl+alt+3",
         "when": "true"
       },
       {
         "command": "terminalManager.stopTerminal",
-        "key": "alt+4",
+        "key": "ctrl+alt+4",
         "when": "true"
       },
       {
         "command": "terminalManager.startGroup",
-        "key": "alt+5",
+        "key": "ctrl+alt+5",
         "when": "true"
       },
       {
         "command": "terminalManager.stopGroup",
-        "key": "alt+6",
+        "key": "ctrl+alt+6",
         "when": "true"
       },
       {
         "command": "terminalManager.startSelected",
-        "key": "shift+1",
+        "key": "ctrl+shift+1",
         "when": "true"
       },
       {
         "command": "terminalManager.stopSelected",
-        "key": "shift+2",
+        "key": "ctrl+shift+2",
         "when": "true"
       },
       {
         "command": "terminalManager.runScriptInModule",
-        "key": "shift+3",
+        "key": "ctrl+shift+3",
         "when": "true"
       },
       {
         "command": "terminalManager.stopScriptInModule",
-        "key": "shift+4",
+        "key": "ctrl+shift+4",
         "when": "true"
       },
       {
         "command": "terminalManager.runScriptsInSelectedModules",
-        "key": "shift+5",
+        "key": "ctrl+shift+5",
         "when": "true"
       },
       {
         "command": "terminalManager.stopScriptsInSelectedModules",
-        "key": "shift+6",
+        "key": "ctrl+shift+6",
         "when": "true"
       }
     ]

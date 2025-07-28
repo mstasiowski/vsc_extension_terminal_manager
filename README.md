@@ -213,18 +213,18 @@ All commands are available via the Command Palette and have default keyboard sho
 
 | Command Id                                     | Palette Label                                   | Default Shortcut |
 | ---------------------------------------------- | ----------------------------------------------- | ---------------- |
-| `terminalManager.startAll`                     | **Terminals: Start All**                        | `Alt+1`          |
-| `terminalManager.stopAll`                      | **Terminals: Stop All**                         | `Alt+2`          |
-| `terminalManager.startTerminal`                | **Terminals: Start Terminal**                   | `Alt+3`          |
-| `terminalManager.stopTerminal`                 | **Terminals: Stop Terminal**                    | `Alt+4`          |
-| `terminalManager.startGroup`                   | **Terminals: Start Group**                      | `Alt+5`          |
-| `terminalManager.stopGroup`                    | **Terminals: Stop Group**                       | `Alt+6`          |
-| `terminalManager.startSelected`                | **Terminals: Start Selected**                   | `Shift+1`        |
-| `terminalManager.stopSelected`                 | **Terminals: Stop Selected**                    | `Shift+2`        |
-| `terminalManager.runScriptInModule`            | **Terminals: Run Script In Module**             | `Shift+3`        |
-| `terminalManager.stopScriptInModule`           | **Terminals: Stop Script In Module**            | `Shift+4`        |
-| `terminalManager.runScriptsInSelectedModules`  | **Terminals: Run Scripts in Selected Modules**  | `Shift+5`        |
-| `terminalManager.stopScriptsInSelectedModules` | **Terminals: Stop Scripts in Selected Modules** | `Shift+6`        |
+| `terminalManager.startAll`                     | **Terminals: Start All**                        | `Ctrl+Alt+1`     |
+| `terminalManager.stopAll`                      | **Terminals: Stop All**                         | `Ctrl+Alt+2`     |
+| `terminalManager.startTerminal`                | **Terminals: Start Terminal**                   | `Ctrl+Alt+3`     |
+| `terminalManager.stopTerminal`                 | **Terminals: Stop Terminal**                    | `Ctrl+Alt+4`     |
+| `terminalManager.startGroup`                   | **Terminals: Start Group**                      | `Ctrl+Alt+5`     |
+| `terminalManager.stopGroup`                    | **Terminals: Stop Group**                       | `Ctrl+Alt+6`     |
+| `terminalManager.startSelected`                | **Terminals: Start Selected**                   | `Ctrl+Shift+1`   |
+| `terminalManager.stopSelected`                 | **Terminals: Stop Selected**                    | `Ctrl+Shift+2`   |
+| `terminalManager.runScriptInModule`            | **Terminals: Run Script In Module**             | `Ctrl+Shift+3`   |
+| `terminalManager.stopScriptInModule`           | **Terminals: Stop Script In Module**            | `Ctrl+Shift+4`   |
+| `terminalManager.runScriptsInSelectedModules`  | **Terminals: Run Scripts in Selected Modules**  | `Ctrl+Shift+5`   |
+| `terminalManager.stopScriptsInSelectedModules` | **Terminals: Stop Scripts in Selected Modules** | `Ctrl+Shift+6`   |
 
 ### Customizing Keyboard Shortcuts
 
@@ -462,7 +462,7 @@ terminal-manager/
 
 ### 1.2.0
 
-- ✨ **NEW**: Added `runScriptsInSelectedModules` which runs a group of predefined scripts in selected modules
+- ✨ **NEW**: Added `runScriptsInSelectedModules` which runs a group of predefined scripts in selected modules (The code runs synchronously and executes scripts one after another in the order specified in runScripts.)
 - ✨ **NEW**: Added `stopScriptsInSelectedModules` which stops a group of predefined scripts in selected modules
 
 ### 1.1.0
