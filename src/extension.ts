@@ -956,7 +956,9 @@ export function activate(context: vscode.ExtensionContext) {
       "terminalManager.stopScriptInModule",
       async () => {
         const terminals = Array.from(terminalMap.entries())
-          .filter(([name, _]) => name.includes(" - ")) // tylko te tworzone przez runScriptInModule
+          .filter(
+            ([name, _]) => name.includes(" - ") || name.startsWith("[Module] ") // oba wzorce
+          )
           .map(([name]) => name);
 
         if (terminals.length === 0) {
@@ -986,6 +988,10 @@ export function activate(context: vscode.ExtensionContext) {
             terminalMap.delete(name);
           }
         });
+
+        vscode.window.showInformationMessage(
+          `Zatrzymano ${selection.length} terminali ze skryptami.`
+        );
       }
     )
   );
@@ -995,11 +1001,11 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "terminalManager.stopScriptsInSelectedModules",
       async () => {
-        const { scriptModules } = getCurrentConfig();
-
         // Pobierz wszystkie aktywne terminale związane ze skryptami
         const scriptTerminals = Array.from(terminalMap.entries())
-          .filter(([name, _]) => name.includes(" - "))
+          .filter(
+            ([name, _]) => name.includes(" - ") || name.startsWith("[Module] ") // oba wzorce
+          )
           .map(([name, terminal]) => ({ name, terminal }));
 
         if (scriptTerminals.length === 0) {
@@ -1013,7 +1019,18 @@ export function activate(context: vscode.ExtensionContext) {
         const moduleGroups: { [moduleName: string]: string[] } = {};
 
         scriptTerminals.forEach(({ name }) => {
-          const moduleName = name.split(" - ")[0];
+          let moduleName: string;
+
+          if (name.startsWith("[Module] ")) {
+            //format: "[Module] NazwaModułu"
+            moduleName = name.replace("[Module] ", "");
+          } else if (name.includes(" - ")) {
+            //format: "NazwaModułu - skrypt"
+            moduleName = name.split(" - ")[0];
+          } else {
+            moduleName = name; // fallback
+          }
+
           if (!moduleGroups[moduleName]) {
             moduleGroups[moduleName] = [];
           }
@@ -1022,12 +1039,17 @@ export function activate(context: vscode.ExtensionContext) {
 
         const moduleNames = Object.keys(moduleGroups);
 
+        if (moduleNames.length === 0) {
+          vscode.window.showInformationMessage(
+            "Brak terminali ze skryptami do zatrzymania."
+          );
+          return;
+        }
+
         const selectedModules = await vscode.window.showQuickPick(
           moduleNames.map((moduleName) => ({
             label: moduleName,
-            description: `Aktywne skrypty: ${moduleGroups[moduleName]
-              .map((name) => name.split(" - ")[1])
-              .join(", ")}`,
+            description: `Aktywne terminale: ${moduleGroups[moduleName].length}`,
           })),
           {
             canPickMany: true,
