@@ -387,14 +387,31 @@ Where `./scripts/microservices.json` contains:
 
 ## 🔄 Auto-reload Behavior
 
-The extension automatically monitors changes to all `terminalManager.*` configurations. When you modify your settings:
+The extension intelligently monitors changes to `terminalManager.*` configurations:
 
-1. All currently running terminals are automatically stopped
-2. The terminal map is cleared
-3. New configuration is loaded
-4. Terminals with `"autoStart": true` are automatically restarted
+### Smart Terminal Reloading
 
-This ensures your terminal setup stays in sync with your configuration without requiring a VS Code reload.
+When you modify `terminalManager.terminals` settings:
+
+- **Changed terminals**: Only modified terminals with `"autoStart": true` are automatically restarted
+- **Removed terminals**: Deleted configurations are automatically stopped and cleaned up
+- **Unchanged terminals**: Continue running without interruption
+- **New terminals**: Added to configuration but require manual start (unless `autoStart: true`)
+
+### Live Configuration Updates
+
+For `terminalManager.scriptModules` and `terminalManager.groups`:
+
+- Changes are **immediately available** when you run commands
+- No terminal restarts needed - just use the updated configuration
+- No VS Code reload required
+
+### File Watchers
+
+- Terminals using `location` property automatically restart when their command files change
+- File watchers are properly cleaned up when terminals are removed from configuration
+
+This intelligent approach minimizes disruption while keeping your setup synchronized with your configuration.
 
 ---
 
