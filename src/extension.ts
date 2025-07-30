@@ -811,8 +811,6 @@ export function activate(context: vscode.ExtensionContext) {
   //     )
   //   );
 
-  // ! run script in selected modules test funkcji
-
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "terminalManager.runScriptsInSelectedModules",
@@ -902,6 +900,8 @@ export function activate(context: vscode.ExtensionContext) {
           terminal.show();
 
           const isWindows = process.platform === "win32";
+          const { autoClose = false } = selectedModule.mod;
+          const { autoCloseWhenFail = false } = selectedModule.mod;
 
           if (isWindows) {
             let powershellScript = "Clear-Host\n";
@@ -911,7 +911,19 @@ export function activate(context: vscode.ExtensionContext) {
               const command = `npm run ${script} ${extraFlags}`.trim();
 
               powershellScript += `${command}\n`;
-              powershellScript += `if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n`;
+
+              if (autoCloseWhenFail) {
+                //jeżeli ma zamknąć terminal po błędzie
+                powershellScript += `if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n`;
+              }
+
+              //jeżeli ma kontynuować po błędzie
+              // powershellScript += `if ($LASTEXITCODE -ne 0) { Write-Host "Błąd w skrypcie, kontynuuję..." }\n`;
+            }
+
+            // zamknij terminal jeśli wszystko OK
+            if (autoClose) {
+              powershellScript += `exit\n`;
             }
 
             terminal.sendText(powershellScript);
@@ -923,7 +935,18 @@ export function activate(context: vscode.ExtensionContext) {
               const command = `npm run ${script} ${extraFlags}`.trim();
 
               bashScript += `${command}\n`;
-              bashScript += `if [ $? -ne 0 ]; then exit 1; fi\n`;
+
+              if (autoCloseWhenFail) {
+                // jeżeli ma zamknąć terminal po błędzie
+                bashScript += `if [ $? -ne 0 ]; then exit 1; fi\n`;
+              }
+
+              // bashScript += `if [ $? -ne 0 ]; then echo "Błąd w skrypcie, kontynuuję..."; fi\n`;
+            }
+
+            // zamknij terminal jeśli wszystko OK
+            if (autoClose) {
+              bashScript += `exit\n`;
             }
 
             terminal.sendText(bashScript);
@@ -947,8 +970,6 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
-
-  // ! run script in selected modules test funkcji
 
   //info Zatrzymaj skrypty npm z wybranych modułów/projektów (pojedynczy wybór)
   context.subscriptions.push(

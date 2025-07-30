@@ -198,12 +198,14 @@ The extension will:
 
 #### Script Module Object Properties
 
-| Property     | Type       | Required | Description                                                                                                                           |
-| ------------ | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`       | `string`   | ✅       | Display name for the module                                                                                                           |
-| `location`   | `string`   | ✅       | Path to folder containing package.json                                                                                                |
-| `command`    | `string`   | ❌       | Additional flags to append to npm run commands                                                                                        |
-| `runScripts` | `string[]` | ❌       | Select predefined names of scripts to be run. Allows you to run multiple terminals using the Run Scripts In Selected Modules function |
+| Property            | Type       | Required | Description                                                                                                                           |
+| ------------------- | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`              | `string`   | ✅       | Display name for the module                                                                                                           |
+| `location`          | `string`   | ✅       | Path to folder containing package.json                                                                                                |
+| `command`           | `string`   | ❌       | Additional flags to append to npm run commands                                                                                        |
+| `runScripts`        | `string[]` | ❌       | Select predefined names of scripts to be run. Allows you to run multiple terminals using the Run Scripts In Selected Modules function |
+| `autoClose`         | `boolean`  | ❌       | Decides whether to close the terminal after successful execution of the script (default = "false")                                    |
+| `autoCloseWhenFail` | `boolean`  | ❌       | Decides whether to close the terminal after a failed script execution (default = "false")                                             |
 
 ---
 
